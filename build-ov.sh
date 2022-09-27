@@ -8,7 +8,7 @@ cd /work
 git clone --recurse-submodules --shallow-submodules --depth 1 --branch 2022.2.0 https://github.com/openvinotoolkit/openvino.git
 
 if ! [ $TARGETARCH = "amd64" ]; then
-    git clone --recurse-submodules --single-branch --branch=master https://github.com/openvinotoolkit/openvino_contrib.git
+    git clone --recurse-submodules --single-branch --branch=master https://github.com/openvinotoolkit/openvino_contrib.git;
 fi
 
 python3.9 -m pip install --upgrade setuptools wheel cython protobuf auditwheel
@@ -16,7 +16,9 @@ python3.9 -m pip install -r openvino/src/bindings/python/src/compatibility/openv
 
 cd openvino
 
-chmod +x install_build_dependencies.sh && ./install_build_dependencies.sh
+if [ $TARGETARCH = "amd64" ]; then
+    chmod +x install_build_dependencies.sh && ./install_build_dependencies.sh;
+fi
 
 git apply /patches/vpu-wheel.patch
 

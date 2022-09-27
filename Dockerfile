@@ -2,35 +2,45 @@
 ###################################################################################################
 # Build OpenVino Runtime
 ###################################################################################################
-FROM debian:11 as ov-build
+FROM --platform=amd64 debian:11 as ov-build
 ARG TARGETARCH
+ENV TARGETARCH ${TARGETARCH}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get -qq update && \
+RUN dpkg --add-architecture arm64 && \
+    apt-get -qq update && \
     apt-get install -y \
     git build-essential cmake ninja-build \
     python3 libpython3-dev python3-pip \
-    python3-venv python3-enchant \
+    python3-venv python3-enchant python-argparse \
     pkg-config unzip automake libtool autoconf \
     ccache curl wget unzip lintian file gzip \
     patchelf shellcheck \
     libssl-dev ca-certificates \
-    libjson-c5 nlohmann-json3-dev \
-    libusb-1.0-0 libusb-1.0-0-dev \
     protobuf-compiler \
     git-lfs \
-    libtbb-dev \
-    libpugixml-dev \
-    libudev1 \
-    libtinfo5 \
-    libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-regex-dev \
-    libpng-dev \
-    libopenblas-dev \
-    libgstreamer1.0-0 gstreamer1.0-plugins-base \
-    libva-dev libavcodec-dev libavformat-dev \
-    libswscale-dev \
-    libgtk2.0-dev libglib2.0-dev libpango1.0-dev libcairo2-dev
+    # ARM64 Support Packages
+    crossbuild-essential-arm64 \
+    libusb-1.0-0-dev:arm64 \
+    libtbb-dev:arm64 libtbb2:arm64 \
+    libgtk-3-dev:arm64 \
+    libavcodec-dev:arm64 \
+    libavformat-dev:arm64 \
+    libswscale-dev:arm64 \
+    libgstreamer1.0-dev:arm64 \
+    libgstreamer-plugins-base1.0-dev:arm64 \
+    libpython3-dev:arm64
+    # \
+    # libjson-c5 nlohmann-json3-dev \
+    # libpugixml-dev \
+    # libudev1 \
+    # libtinfo5 \
+    # libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-regex-dev \
+    # libpng-dev \
+    # libopenblas-dev \
+    # libva-dev libavcodec-dev libavformat-dev \
+    # libgtk2.0-dev libglib2.0-dev libpango1.0-dev libcairo2-dev
 
 #  cmake 3.20 or higher is required to build OpenVINO
 RUN current_cmake_ver=$(cmake --version | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9][^.]\).*/\1/p') && \
@@ -96,3 +106,7 @@ RUN if ! [ "${TARGETARCH}" = "amd64"]; then \
 # # # Install
 # RUN mkdir /opt/openvino && cd /openvino/build && \
 #     cmake --install /openvino/build --prefix /opt/openvino
+
+COPY patches /patches
+COPY build-ov.sh build-ov.sh
+CMD [ "/bin/bash", "build-ov.sh", "${TARGETARCH}" ]

@@ -18,6 +18,8 @@ Note: the NCS2 will be deprecated after OpenVino 2022.3.  The build script curre
 
 The makefile included will generate the build image using docker and buildx.
 
+### AMD64 Build
+
 ```bash
 > make local-amd64
 ```
@@ -30,6 +32,20 @@ Run the generated image to produce the OpenVino wheel.
   -v $PWD/work.amd64:/work \
   -v $PWD/output:/output \
   ov-builder:latest-amd64
+```
+
+### ARM64 Build
+
+```bash
+> make local-arm64
+```
+
+```bash
+> mkdir -p  work.arm64 && mkdir -p output
+> docker run \
+  -v $PWD/work.arm64:/work \
+  -v $PWD/output:/output \
+  ov-builder:latest-arm64
 ```
 
 All the resulting build files can be found in the `work.amd64/openvino/build` folder.  If you only want to keep the .whl (both the runtime and the dev package), these are copied to the `output` folder
