@@ -109,4 +109,4 @@ RUN if ! [ "${TARGETARCH}" = "amd64"]; then \
 
 COPY patches /patches
 COPY build-ov.sh build-ov.sh
-CMD [ "/bin/bash", "build-ov.sh", "${TARGETARCH}" ]
+CMD [ "/bin/bash", "build-ov.sh", "$TARGETARCH" ]

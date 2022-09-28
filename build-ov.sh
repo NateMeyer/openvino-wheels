@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-TARGETARCH = argv[1]
-echo "Building OpenVino for ${TARGETARCH}"
-
+echo "Building OpenVino for $TARGETARCH"
 cd /work
 
 git clone --recurse-submodules --shallow-submodules --depth 1 --branch 2022.2.0 https://github.com/openvinotoolkit/openvino.git
