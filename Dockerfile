@@ -12,7 +12,7 @@ RUN dpkg --add-architecture arm64 && \
     apt-get -qq update && \
     apt-get install -y \
     git build-essential cmake ninja-build \
-    python3 libpython3-dev python3-pip \
+    python3.9 libpython3-dev python3-pip \
     python3-venv python3-enchant python-argparse \
     pkg-config unzip automake libtool autoconf \
     ccache curl wget unzip lintian file gzip \
@@ -56,7 +56,7 @@ RUN current_cmake_ver=$(cmake --version | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}
 
 # Arm-Specific package needs
 RUN if ! [ "${TARGETARCH}" = "amd64"]; then \
-    apt-get install scons; \
+    apt-get install -y scons python3.9-dev; \
     fi
 
 # # # Get OpenVino Source

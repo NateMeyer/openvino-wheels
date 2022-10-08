@@ -42,8 +42,8 @@ Run the generated image to produce the OpenVino wheel.
 
 ```bash
 > mkdir -p  work.arm64 && mkdir -p output
-> docker run \
-  -v $PWD/work.arm64:/work \
+> docker container run --rm -it \
+  -v $PWD/work.arm64:/arm_cpu_plugin \
   -v $PWD/output:/output \
   ov-builder:latest-arm64
 ```
