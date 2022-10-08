@@ -222,7 +222,7 @@ tar -czvf ../OV_${ARCH_NAME}_package.tar.gz ./* || \
 fail 23 "Package creation failed. Nothing more to do"
 
 if [ -d /output ]; then
-cp -a $STAGING_DIR /output/${STAGING_DIR}-${ARCH_NAME};
+cp -a $STAGING_DIR /output/openvino_build-${ARCH_NAME};
 fi
 
 exit 0
