@@ -48,4 +48,18 @@ Run the generated image to produce the OpenVino wheel.
   ov-builder:latest-arm64
 ```
 
-All the resulting build files can be found in the `work.amd64/openvino/build` folder.  If you only want to keep the .whl (both the runtime and the dev package), these are copied to the `output` folder
+### ARM32 Build
+
+```bash
+> make local-armhf
+```
+
+```bash
+> mkdir -p  work.armhf && mkdir -p output
+> docker container run --rm -it \
+  -v $PWD/work.armhf:/arm_cpu_plugin \
+  -v $PWD/output:/output \
+  ov-builder:latest-armhf
+```
+
+All the resulting build files can be found in the `work.<arch>/openvino/build` folder.  If you only want to keep the .whl (both the runtime and the dev package), these are copied to the `output` folder
