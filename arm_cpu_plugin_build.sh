@@ -84,8 +84,8 @@ fi
 
 checkSrcTree $ONETBB_HOME https://github.com/oneapi-src/oneTBB.git master
 checkSrcTree $OPENCV_HOME https://github.com/opencv/opencv.git 4.x
-checkSrcTree $OPENVINO_HOME https://github.com/openvinotoolkit/openvino.git 2022.2.0
-checkSrcTree $OPENVINO_CONTRIB https://github.com/openvinotoolkit/openvino_contrib.git master
+checkSrcTree $OPENVINO_HOME https://github.com/openvinotoolkit/openvino.git 2022.3.1
+checkSrcTree $OPENVINO_CONTRIB https://github.com/openvinotoolkit/openvino_contrib.git 2022.3.0
 if [ "$WITH_OMZ_DEMO" = "ON" ]; then
     checkSrcTree $OMZ_HOME https://github.com/openvinotoolkit/open_model_zoo.git master
 fi

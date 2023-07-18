@@ -13,7 +13,7 @@ if [ $TARGETARCH = "arm64" ]; then
 fi
 
 if ! [ -d "openvino" ]; then
-    git clone --recurse-submodules --shallow-submodules --depth 1 --branch 2022.2.0 https://github.com/openvinotoolkit/openvino.git
+    git clone --recurse-submodules --shallow-submodules --depth 1 --branch 2022.3.1 https://github.com/openvinotoolkit/openvino.git
     cd openvino 
     git apply /patches/vpu-wheel.patch
     cd ..;

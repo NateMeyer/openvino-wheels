@@ -6,7 +6,7 @@ A docker image is generated to run the build within.  Included build script(s) w
 
 The included build script will also apply a patch that adds the Myriad plugin to the python wheel. This is needed to be able to use the NCS2 from Intel with the python library.
 
-Note: the NCS2 will be deprecated after OpenVino 2022.3.  The build script currently downloads the 2022.2 release tag from Intel's Openvino Github repository.
+Note: the NCS2 will be deprecated after OpenVino 2022.3.  The build script currently downloads the 2022.3.1 release tag from Intel's Openvino Github repository.
 
 ## Pre-requisites
 
