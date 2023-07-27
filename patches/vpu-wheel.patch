@@ -2,16 +2,18 @@ diff --git a/src/bindings/python/wheel/setup.py b/src/bindings/python/wheel/setu
 index fcaa5e5f..b8eaccc4 100644
 --- a/src/bindings/python/wheel/setup.py
 +++ b/src/bindings/python/wheel/setup.py
-@@ -72,6 +72,12 @@ LIB_INSTALL_CFG = {
+@@ -72,6 +72,13 @@ LIB_INSTALL_CFG = {
          "install_dir": OV_RUNTIME_LIBS_DIR,
          "rpath": LIBS_RPATH,
+         "binary_dir": OPENVINO_BUILD_DIR,
      },
 +    "vpu_plugin": {
 +        "name": "myriad",
-+        "prefix": "libs.core",
++        "prefix": "libs.myriad",
 +        "install_dir": OV_RUNTIME_LIBS_DIR,
 +        "rpath": LIBS_RPATH,
-+    },
++        "binary_dir": OPENVINO_BUILD_DIR,
++   },
      "multi_plugin": {
          "name": "multi",
-         "prefix": "libs.core",
+         "prefix": "libs.multi",
