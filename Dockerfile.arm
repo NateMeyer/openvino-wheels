@@ -3,8 +3,17 @@
 
 FROM ubuntu:20.04
 
+ARG ARCH
+ARG ARCH_SPEC
+ARG ARCH_TOOLCHAIN
+
 ENV DEBIAN_FRONTEND noninteractive
-ENV PAKAGE_UPDATES_OF 20220126
+ENV PAKAGE_UPDATES_OF 20221222
+
+ENV ARCH_NAME ${ARCH}
+ENV CROSS_ARCH ${ARCH_SPEC}
+ENV TOOLCHAIN_DEFS ${ARCH_TOOLCHAIN}
+
 
 #Prerequisite installation
 RUN apt-get update && \
@@ -19,14 +28,15 @@ RUN apt-get update && \
     echo deb [arch=amd64] http://security.ubuntu.com/ubuntu/ focal-security main restricted >> /etc/apt/sources.list && \
     echo deb [arch=amd64] http://security.ubuntu.com/ubuntu/ focal-security universe >> /etc/apt/sources.list && \
     echo deb [arch=amd64] http://security.ubuntu.com/ubuntu/ focal-security multiverse >> /etc/apt/sources.list && \
-    echo deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ focal main >> /etc/apt/sources.list && \
-    echo deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ focal universe >> /etc/apt/sources.list && \
-    echo deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ focal-updates main >> /etc/apt/sources.list && \
-    echo deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ focal-security main >> /etc/apt/sources.list && \
-    dpkg --add-architecture armhf && \
+    echo deb [arch=${ARCH_NAME}] http://ports.ubuntu.com/ubuntu-ports/ focal main >> /etc/apt/sources.list && \
+    echo deb [arch=${ARCH_NAME}] http://ports.ubuntu.com/ubuntu-ports/ focal universe >> /etc/apt/sources.list && \
+    echo deb [arch=${ARCH_NAME}] http://ports.ubuntu.com/ubuntu-ports/ focal-updates main >> /etc/apt/sources.list && \
+    echo deb [arch=${ARCH_NAME}] http://ports.ubuntu.com/ubuntu-ports/ focal-security main >> /etc/apt/sources.list && \
+    dpkg --add-architecture ${ARCH_NAME} && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
         locales \
+        shellcheck \
         apt-transport-https \
         debian-archive-keyring \
         software-properties-common \
@@ -39,20 +49,20 @@ RUN apt-get update && \
         scons \
         cmake \
         build-essential \
-        crossbuild-essential-armhf \
+        crossbuild-essential-${ARCH_NAME} \
         python3-dev \
         python3-numpy \
         python3-pip \
-        libpython3-dev:armhf \
+        libpython3-dev:${ARCH_NAME} \
         libprotoc-dev \
         protobuf-compiler \
         libffi-dev \
         libssl-dev \
-        libusb-1.0-0-dev:armhf \
-        libgtk-3-dev:armhf \
-        libavcodec-dev:armhf \
-        libavformat-dev:armhf \
-        libswscale-dev:armhf \
+        libusb-1.0-0-dev:${ARCH_NAME} \
+        libgtk-3-dev:${ARCH_NAME} \
+        libavcodec-dev:${ARCH_NAME} \
+        libavformat-dev:${ARCH_NAME} \
+        libswscale-dev:${ARCH_NAME} \
         patchelf \
     && \
     locale-gen en_US.UTF-8 && \
@@ -60,36 +70,41 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # To cross-compile Python3.9 we need to first compile it for the host
-RUN curl -O https://www.python.org/ftp/python/3.9.14/Python-3.9.14.tar.xz && \
-    tar -xf Python-3.9.14.tar.xz && \
-    cd Python-3.9.14 && ./configure && make -j4 && make altinstall && \
-    curl https://bootstrap.pypa.io/get-pip.py | python3.9 - --no-cache-dir pip==20.2.2 numpy==1.20.0 cython
+RUN curl -O https://www.python.org/ftp/python/3.9.17/Python-3.9.17.tar.xz && \
+    tar -xf Python-3.9.17.tar.xz && \
+    cd Python-3.9.17 && ./configure && make -j$(nproc) && make altinstall
 
 # Cross-compile Python3.9 for ARM
-RUN cd Python-3.9.14 && make distclean && \
+RUN cd Python-3.9.17 && make distclean && \
     ./configure \
-        --host=arm-linux-gnueabihf \
+        --host=${CROSS_ARCH} \
         --build=x86_64-linux-gnu \
-        --disable-ipv6 \
+        --without-ensurepip \
         --enable-shared \
         --prefix=/opt/python3.9_arm \
+        ac_cv_buggy_getaddrinfo=no \
         ac_cv_file__dev_ptmx=no \
         ac_cv_file__dev_ptc=no && \
-    make -j4 && make altinstall
+    make -j$(nproc) && make altinstall
 
-# Replace exceptional Python version. It's used in case of failed test check which we
-# have in our case because CMake tries to run cross-compiled python to detect version.
-RUN sed -i -E 's|PYTHON_VERSION_STRING "1.4"|PYTHON_VERSION_STRING "3.9"|' /usr/share/cmake-3.16/Modules/FindPythonInterp.cmake && \
-    sed -i -E 's|PYTHON_VERSION_MAJOR "1"|PYTHON_VERSION_MAJOR "3"|' /usr/share/cmake-3.16/Modules/FindPythonInterp.cmake && \
-    sed -i -E 's|PYTHON_VERSION_MINOR "4"|PYTHON_VERSION_MINOR "9"|' /usr/share/cmake-3.16/Modules/FindPythonInterp.cmake && \
-    sed -i -E 's|PYTHON_VERSION_PATCH "0"|PYTHON_VERSION_PATCH "14"|' /usr/share/cmake-3.16/Modules/FindPythonInterp.cmake
+RUN wget https://www.cmake.org/files/v3.21/cmake-3.21.7.tar.gz && \
+    tar xf cmake-3.21.7.tar.gz && \
+    (cd cmake-3.21.7 && ./bootstrap --parallel=$(nproc --all) && make --jobs=$(nproc --all) && make install) && \
+    rm -rf cmake-3.21.7 cmake-3.21.7.tar.gz
 
-RUN rm -f /usr/bin/python3 && ln -s /usr/local/bin/python3.9 /usr/bin/python3
+RUN /usr/local/bin/python3.9 -m pip install -U pip && \
+    /usr/local/bin/python3.9 -m pip install crossenv && \
+    /usr/local/bin/python3.9 -m crossenv /opt/python3.9_arm/bin/python3.9 /opt/cross_venv && \
+    . /opt/cross_venv/bin/activate && \
+    build-pip3 install -U pip wheel setuptools && \
+    cross-pip3 install -U pip cython wheel setuptools numpy
+
+RUN unlink /usr/bin/python3 && \
+    ln -s /usr/local/bin/python3.9 /usr/bin/python3 && \
+    python3 -m pip install -U pip && \
+    python3 -m pip install numpy
 RUN rm /usr/bin/lsb_release
 
-
-ENV ARCH_NAME arm-linux-gnueabihf
-ENV TOOLCHAIN_DEFS arm.toolchain.cmake
 COPY arm_cpu_plugin_build.sh /arm_cpu_plugin_build.sh
 COPY patches/ /patches
 
