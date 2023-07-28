@@ -1,0 +1,7 @@
+diff --git a/tools/model_tools/requirements-tensorflow.in b/tools/model_tools/requirements-tensorflow.in
+index ecde023..61bdd9d 100644
+--- a/tools/model_tools/requirements-tensorflow.in
++++ b/tools/model_tools/requirements-tensorflow.in
+@@ -1 +1 @@
+-tensorflow>=2.5,<=2.9.3
++tensorflow>=2.5,<=2.10.0

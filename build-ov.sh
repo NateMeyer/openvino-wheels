@@ -17,7 +17,9 @@ if ! [ -d "openvino" ]; then
     cd openvino 
     git apply /patches/vpu-wheel.patch
     git apply /patches/numpy-version.patch
-    cd ..;
+    cd thirdparty/open_model_zoo
+    git apply /patches/omz-tf2.patch
+    cd ../../..;
 fi
 
 if ! [ $TARGETARCH = "amd64" ] && ! [ -d openvino_contrib ]; then

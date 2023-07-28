@@ -106,6 +106,7 @@ fi
 if [ $NEED_PATCH = true ]; then
     patch -p 1 -d $OPENVINO_HOME -i /patches/vpu-wheel.patch
     patch -p 1 -d $OPENVINO_HOME -i /patches/numpy-version.patch
+    patch -p 1 -d $OPENVINO_HOME/thirdparty/open_model_zoo -i /patches/omz-tf2.patch
 fi
 
 # python variables
